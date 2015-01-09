@@ -101,7 +101,7 @@ namespace pos{
     unsigned int aohcount_;
     void sortDeviceList();
 
-    std::string type_; // fpix or bpix, used to determine setting names and addresses
+    std::string type_; // fpix or bpix or pilt, used to determine setting names and addresses
   
     std::map<std::string, unsigned int> nameToAddress_; // translation from name to address, filled in by fillNameToAddress();
     std::map<std::string, std::string> nameDBtoFileConversion_; // filled by fillDBToFileAddress() ;

@@ -119,7 +119,43 @@ namespace pos{
     const unsigned int k_bpix_AOH4_Bias6_address = k_bpix_AOH4_base + k_AOH_Bias6_offset;
     const unsigned int k_bpix_AOH4_Gain123_address = k_bpix_AOH4_base + k_AOH_Gain123_offset;
     const unsigned int k_bpix_AOH4_Gain456_address = k_bpix_AOH4_base + k_AOH_Gain456_offset;
+
+    // POH (Pilot)
+    // but don't make separate set of constants for rest of registers yet since they are the same in pilot system as in fpix.
+    const std::string k_POH_Bias1 = "POH_Bias1";
+    const std::string k_POH_Bias2 = "POH_Bias2";
+    const std::string k_POH_Bias3 = "POH_Bias3";
+    const std::string k_POH_Bias4 = "POH_Bias4";
+    const std::string k_POH_Bias5 = "POH_Bias5";
+    const std::string k_POH_Bias6 = "POH_Bias6";
+    const std::string k_POH_Bias7 = "POH_Bias7";
+    const std::string k_POH_Gain123 = "POH_Gain123";
+    const std::string k_POH_Gain4   = "POH_Gain4";
+    const std::string k_POH_Gain567 = "POH_Gain567";
+
+    const unsigned int k_POH_Bias1_offset = 0x0;
+    const unsigned int k_POH_Bias2_offset = 0x1;
+    const unsigned int k_POH_Bias3_offset = 0x2;
+    const unsigned int k_POH_Bias4_offset = 0x8;
+    const unsigned int k_POH_Bias5_offset = 0x4;
+    const unsigned int k_POH_Bias6_offset = 0x5;
+    const unsigned int k_POH_Bias7_offset = 0x6;
+    const unsigned int k_POH_Gain123_offset = 0x3;
+    const unsigned int k_POH_Gain4_offset   = 0xB;
+    const unsigned int k_POH_Gain567_offset = 0x7;
     
+    const unsigned int k_pilt_POH_base = 0x10;
+    const unsigned int k_pilt_POH_Bias1_address = k_pilt_POH_base + k_POH_Bias1_offset;
+    const unsigned int k_pilt_POH_Bias2_address = k_pilt_POH_base + k_POH_Bias2_offset;
+    const unsigned int k_pilt_POH_Bias3_address = k_pilt_POH_base + k_POH_Bias3_offset;
+    const unsigned int k_pilt_POH_Bias4_address = k_pilt_POH_base + k_POH_Bias4_offset;
+    const unsigned int k_pilt_POH_Bias5_address = k_pilt_POH_base + k_POH_Bias5_offset;
+    const unsigned int k_pilt_POH_Bias6_address = k_pilt_POH_base + k_POH_Bias6_offset;
+    const unsigned int k_pilt_POH_Bias7_address = k_pilt_POH_base + k_POH_Bias7_offset;
+    const unsigned int k_pilt_POH_Gain123_address = k_pilt_POH_base + k_POH_Gain123_offset;
+    const unsigned int k_pilt_POH_Gain4_address   = k_pilt_POH_base + k_POH_Gain4_offset;
+    const unsigned int k_pilt_POH_Gain567_address = k_pilt_POH_base + k_POH_Gain567_offset;
+
     // PLL
     const std::string k_PLL_CTR1 = "PLL_CTR1";
     const std::string k_PLL_CTR2 = "PLL_CTR2";

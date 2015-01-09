@@ -401,7 +401,7 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   if ( dummy == "Type:" ) // read in the type, defaulting to "fpix" if not specified
   {
     in >> type_;
-    assert( type_ == "fpix" || type_ == "bpix" );
+    assert( type_ == "fpix" || type_ == "bpix" || type_ == "pilt" );
     in >> dummy;
   }
   else
@@ -637,7 +637,7 @@ void PixelPortCardConfig::fillNameToAddress()
 {
 	if ( nameToAddress_.size() != 0 ) return;
 	
-	if ( type_ == "fpix" )
+	if ( type_ == "fpix")
 	{
 		nameToAddress_[PortCardSettingNames::k_AOH_Bias1] = PortCardSettingNames::k_fpix_AOH_Bias1_address;
 		nameToAddress_[PortCardSettingNames::k_AOH_Bias2] = PortCardSettingNames::k_fpix_AOH_Bias2_address;
@@ -648,6 +648,36 @@ void PixelPortCardConfig::fillNameToAddress()
 		nameToAddress_[PortCardSettingNames::k_AOH_Gain123] = PortCardSettingNames::k_fpix_AOH_Gain123_address;
 		nameToAddress_[PortCardSettingNames::k_AOH_Gain456] = PortCardSettingNames::k_fpix_AOH_Gain456_address;
 		
+		nameToAddress_[PortCardSettingNames::k_PLL_CTR1] = PortCardSettingNames::k_fpix_PLL_CTR1_address;
+		nameToAddress_[PortCardSettingNames::k_PLL_CTR2] = PortCardSettingNames::k_fpix_PLL_CTR2_address;
+		nameToAddress_[PortCardSettingNames::k_PLL_CTR3] = PortCardSettingNames::k_fpix_PLL_CTR3_address;
+		nameToAddress_[PortCardSettingNames::k_PLL_CTR4or5] = PortCardSettingNames::k_fpix_PLL_CTR4or5_address;
+		
+		nameToAddress_[PortCardSettingNames::k_Delay25_RDA] = PortCardSettingNames::k_fpix_Delay25_RDA_address;
+		nameToAddress_[PortCardSettingNames::k_Delay25_RCL] = PortCardSettingNames::k_fpix_Delay25_RCL_address;
+		nameToAddress_[PortCardSettingNames::k_Delay25_SDA] = PortCardSettingNames::k_fpix_Delay25_SDA_address;
+		nameToAddress_[PortCardSettingNames::k_Delay25_TRG] = PortCardSettingNames::k_fpix_Delay25_TRG_address;
+		nameToAddress_[PortCardSettingNames::k_Delay25_SCL] = PortCardSettingNames::k_fpix_Delay25_SCL_address;
+		nameToAddress_[PortCardSettingNames::k_Delay25_GCR] = PortCardSettingNames::k_fpix_Delay25_GCR_address;
+		
+		nameToAddress_[PortCardSettingNames::k_DOH_Ch0Bias_CLK]  = PortCardSettingNames::k_fpix_DOH_Ch0Bias_CLK_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Dummy]        = PortCardSettingNames::k_fpix_DOH_Dummy_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Ch1Bias_Data] = PortCardSettingNames::k_fpix_DOH_Ch1Bias_Data_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Gain_SEU]     = PortCardSettingNames::k_fpix_DOH_Gain_SEU_address;
+	}
+	else if ( type_ == "pilt")
+	{
+		nameToAddress_[PortCardSettingNames::k_POH_Bias1] = PortCardSettingNames::k_pilt_POH_Bias1_address;
+		nameToAddress_[PortCardSettingNames::k_POH_Bias2] = PortCardSettingNames::k_pilt_POH_Bias2_address;
+		nameToAddress_[PortCardSettingNames::k_POH_Bias3] = PortCardSettingNames::k_pilt_POH_Bias3_address;
+		nameToAddress_[PortCardSettingNames::k_POH_Bias4] = PortCardSettingNames::k_pilt_POH_Bias4_address;
+		nameToAddress_[PortCardSettingNames::k_POH_Bias5] = PortCardSettingNames::k_pilt_POH_Bias5_address;
+		nameToAddress_[PortCardSettingNames::k_POH_Bias6] = PortCardSettingNames::k_pilt_POH_Bias6_address;
+		nameToAddress_[PortCardSettingNames::k_POH_Gain123] = PortCardSettingNames::k_pilt_POH_Gain123_address;
+		nameToAddress_[PortCardSettingNames::k_POH_Gain4]   = PortCardSettingNames::k_pilt_POH_Gain4_address;
+		nameToAddress_[PortCardSettingNames::k_POH_Gain567] = PortCardSettingNames::k_pilt_POH_Gain567_address;
+
+		// JMT don't make separate set of constants for rest of registers yet since they are the same in pilot system as in fpix.
 		nameToAddress_[PortCardSettingNames::k_PLL_CTR1] = PortCardSettingNames::k_fpix_PLL_CTR1_address;
 		nameToAddress_[PortCardSettingNames::k_PLL_CTR2] = PortCardSettingNames::k_fpix_PLL_CTR2_address;
 		nameToAddress_[PortCardSettingNames::k_PLL_CTR3] = PortCardSettingNames::k_fpix_PLL_CTR3_address;
