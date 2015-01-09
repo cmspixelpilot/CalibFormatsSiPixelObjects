@@ -92,14 +92,14 @@ PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &ta
       analogInputBias_  = atoi(tableMat[1][colM["ANLG_INBIAS_VAL"]].c_str());
       analogOutputBias_ = atoi(tableMat[1][colM["ANLG_OUTBIAS_VAL"]].c_str());
       analogOutputGain_ = atoi(tableMat[1][colM["ANLG_OUTGAIN_VAL"]].c_str());
-     #endif
- 
+
       if( tableMat[1][colM["TBM_MODE"]] == "SingleMode"){
 	singlemode_=true;
       }
       else{
 	singlemode_=false;
       }
+     #endif
     }
 }//end contructor
 
@@ -131,6 +131,36 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 
 	in >> tag;
 	//std::cout << "Tag="<<tag<<std::endl;
+	assert(tag=="TBMAAutoReset:");
+	in >> tmpint;
+	TBMAAutoReset_=tmpint;
+
+	in >> tag;
+	//std::cout << "Tag="<<tag<<std::endl;
+	assert(tag=="TBMBAutoReset:");
+	in >> tmpint;
+	TBMBAutoReset_=tmpint;
+
+	in >> tag;
+	//std::cout << "Tag="<<tag<<std::endl;
+	assert(tag=="TBMAPKAMCount:");
+	in >> tmpint;
+	TBMAPKAMCount_=tmpint;
+
+	in >> tag;
+	//std::cout << "Tag="<<tag<<std::endl;
+	assert(tag=="TBMBPKAMCount:");
+	in >> tmpint;
+	TBMBPKAMCount_=tmpint;
+	
+	in >> tag;
+	//std::cout << "Tag="<<tag<<std::endl;
+	assert(tag=="TBMPLLDelay:");
+	in >> tmpint;
+	TBMPLLDelay_=tmpint;
+	
+	in >> tag;
+	//std::cout << "Tag="<<tag<<std::endl;
 	assert(tag=="TBMADelay:");
 	in >> tmpint;
 	TBMADelay_=tmpint;
@@ -140,17 +170,7 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 	assert(tag=="TBMBDelay:");
 	in >> tmpint;
 	TBMBDelay_=tmpint;
-
-	in >> tag;
-	//std::cout << "Tag="<<tag<<std::endl;
-	assert(tag=="Mode:");
-	in >> tag;
-	assert(tag=="SingleMode"||tag=="DualMode");
 	
-	singlemode_=true;
-
-	if (tag=="DualMode") singlemode_=false;
-
 	in.close();
 
     }
@@ -184,9 +204,13 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 
 	rocid_=tmp;
 
+	in >> TBMAAutoReset_;
+	in >> TBMBAutoReset_;
+	in >> TBMAPKAMCount_;
+	in >> TBMBPKAMCount_;
+	in >> TBMPLLDelay_;
 	in >> TBMADelay_;
 	in >> TBMBDelay_;
-	in >> singlemode_;
 
 	in.close();
 
@@ -199,9 +223,13 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 
 void PixelTBMSettings::setTBMGenericValue(std::string what, int value) 
 {
- if(      what == "TBMADelay" ) {TBMADelay_ = (unsigned char)value;}
+ if     ( what == "TBMAAutoReset" ) {TBMAAutoReset_ = (bool)value;}
+ else if( what == "TBMBAutoReset" ) {TBMBAutoReset_ = (bool)value;}
+ else if( what == "TBMAPKAMCount" ) {TBMAPKAMCount_ = (unsigned char)value;}
+ else if( what == "TBMBPKAMCount" ) {TBMBPKAMCount_ = (unsigned char)value;}
+ else if( what == "TBMPLLDelay" ) {TBMPLLDelay_ = (unsigned char)value;}
+ else if( what == "TBMADelay" ) {TBMADelay_ = (unsigned char)value;}
  else if( what == "TBMBDelay" ) {TBMBDelay_ = (unsigned char)value;}
- else if( what == "Mode" )             {singlemode_       = (bool)value;         }
  else 
  {
    std::cout << __LINE__ << "]\t[PixelTBMSettings::setTBMGenericValue()]\t\tFATAL: invalid key/value pair: " << what << "/" << value << std::endl ; 
@@ -216,10 +244,13 @@ void PixelTBMSettings::writeBinary(std::string filename) const {
     out << (char)rocid_.rocname().size();
     out.write(rocid_.rocname().c_str(),rocid_.rocname().size());
 
+    out <<TBMAAutoReset_;
+    out <<TBMBAutoReset_;
+    out <<TBMAPKAMCount_;
+    out <<TBMBPKAMCount_;
+    out <<TBMPLLDelay_;
     out <<TBMADelay_;
     out <<TBMBDelay_;
-    out << singlemode_;
-
 
 }
 
@@ -234,15 +265,13 @@ void PixelTBMSettings::writeASCII(std::string dir) const {
 
     out << rocid_.rocname() << std::endl;
 
+    out << "TBMAAutoReset: "<<(int)TBMAAutoReset_<<std::endl;
+    out << "TBMBAutoReset: "<<(int)TBMBAutoReset_<<std::endl;
+    out << "TBMAPKAMCount: "<<(int)TBMAPKAMCount_<<std::endl;
+    out << "TBMBPKAMCount: "<<(int)TBMBPKAMCount_<<std::endl;
+    out << "TBMPLLDelay: "<<(int)TBMPLLDelay_<<std::endl;
     out << "TBMADelay: "<<(int)TBMADelay_<<std::endl;
     out << "TBMBDelay: "<<(int)TBMBDelay_<<std::endl;
-    out << "Mode: ";
-    if (singlemode_) {
-      out << "SingleMode" << std::endl;
-    }
-    else{
-      out << "DualMode" << std::endl;
-    }
 }
 
 void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
@@ -305,16 +334,14 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 
 std::ostream& pos::operator<<(std::ostream& s, const PixelTBMSettings& tbm){
 
-    s << "Module          :"<<tbm.rocid_.rocname() <<std::endl; 
-    s << "TBMADelay       :"<<tbm.TBMADelay_<<std::endl;
-    s << "TBMBDelay       :"<<tbm.TBMBDelay_<<std::endl;
-    if (tbm.singlemode_){
-      s << "mode            :Singlemode"<<std::endl;
-    }
-    else{
-      s << "mode            :Dualmode"<<std::endl;
-    }
-
+    s << "Module: "<<tbm.rocid_.rocname() <<std::endl; 
+    s << "TBMAAutoReset: "<<int(tbm.TBMAAutoReset_)<<std::endl;
+    s << "TBMBAutoReset: "<<int(tbm.TBMBAutoReset_)<<std::endl;
+    s << "TBMAPKAMCount: "<<tbm.TBMAPKAMCount_<<std::endl;
+    s << "TBMBPKAMCount: "<<tbm.TBMBPKAMCount_<<std::endl;
+    s << "TBMPLLDelay: "<<tbm.TBMPLLDelay_<<std::endl;
+    s << "TBMADelay: "<<tbm.TBMADelay_<<std::endl;
+    s << "TBMBDelay: "<<tbm.TBMBDelay_<<std::endl;
     return s;
 
 }
@@ -364,24 +391,25 @@ void PixelTBMSettings::writeXML(std::ofstream *outstream,
                                 std::ofstream *out1stream,
                                 std::ofstream *out2stream) const 
 {
-  assert(0);
   std::string mthn = "]\t[PixelTBMSettings::writeXML()]\t\t\t    " ;
 
   PixelModuleName module(rocid_.rocname());
   													     
   *outstream << "  <DATA>"										     << std::endl ;
   *outstream << "   <MODULE_NAME>"	<< rocid_.rocname()	 << "</MODULE_NAME>"			     << std::endl ;
+
+  assert(0);
 #if 0
   *outstream << "   <ANLG_INBIAS_VAL>"  <<(int)analogInputBias_  << "</ANLG_INBIAS_VAL>"		     << std::endl ;
   *outstream << "   <ANLG_OUTBIAS_VAL>" <<(int)analogOutputBias_ << "</ANLG_OUTBIAS_VAL>"		     << std::endl ;
   *outstream << "   <ANLG_OUTGAIN_VAL>" <<(int)analogOutputGain_ << "</ANLG_OUTGAIN_VAL>"		     << std::endl ;
-#endif
   if (singlemode_) {											     	
     *outstream << "  <TBM_MODE>SingleMode</TBM_MODE>" 					 		     << std::endl ;
   }
   else{ 												     
     *outstream << "  <TBM_MODE>DualMode</TBM_MODE>"   					 		     << std::endl ;
   }													     
+#endif
   *outstream << "  </DATA>"                                                               		     << std::endl ;
 }
 

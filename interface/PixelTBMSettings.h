@@ -68,8 +68,6 @@ namespace pos{
     void setTBMBDelay(unsigned char x) {TBMBDelay_=x;}
     
     // Added by Dario (Apr 2008)
-    bool getMode(void)      {return singlemode_;}
-    void setMode(bool mode) {singlemode_ = mode;}
     void setROCName(std::string rocname){
       	PixelROCName tmp(rocname);
 	rocid_=tmp;
@@ -81,10 +79,13 @@ namespace pos{
     PixelROCName rocid_;
     PixelModuleName moduleId_ ;
 
+    unsigned char TBMAAutoReset_;
+    unsigned char TBMBAutoReset_;
+    unsigned char TBMAPKAMCount_;
+    unsigned char TBMBPKAMCount_;
+    unsigned char TBMPLLDelay_;
     unsigned char TBMADelay_;
     unsigned char TBMBDelay_;
-    bool singlemode_;
-
   };
 }
 /* @} */
