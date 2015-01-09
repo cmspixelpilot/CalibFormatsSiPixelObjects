@@ -33,12 +33,12 @@ namespace pos{
     
     std::string rocname() const; 
 
-    char detsub() const {return (id_&0x80000000)?'B':'F';}    
+    char detsub() const {return (id_&0x10000000)?'P':((id_&0x80000000)?'B':'F');}    
     char mp() const {return id_&0x40000000?'p':'m';}    
     char IO() const {return id_&0x20000000?'I':'O';}    
     int roc() const {return id_&0xf;}    
 
-    //These methods only for FPix
+    //These methods only for FPix and Pilot, plaquet always is 1 for Pilot.
     int disk() const {assert((id_&0x80000000)==0); return (id_>>12)&0x3;}    
     int blade() const {assert((id_&0x80000000)==0); return (id_>>7)&0x1f;}    
     int panel() const {assert((id_&0x80000000)==0); return ((id_>>6)&0x1)+1;}    
@@ -73,6 +73,9 @@ namespace pos{
 
     void check(bool check, const std::string& name);
 
+    void setIdPilot(char np, char LR,int disk,
+		    int blade, int panel, int plaquet, int roc);
+
     void setIdFPix(char np, char LR,int disk,
 		   int blade, int panel, int plaquet, int roc);
 
@@ -92,6 +95,7 @@ namespace pos{
     //bit [11] H or F (0 or 1)#
     //bit [12,13] the layer#
     //bit [14,15,16] the section#
+    //bit [28] = 0
     //bit [29] I or 0 (0 or 1)
     //bit [30] m or p (0 or 1)
     //bit [31] = 1
@@ -105,8 +109,22 @@ namespace pos{
     //bit [6] the panel#
     //bit [7,8,9,10,11] the blade#
     //bit [12,13] the disk#
+    //bit [28] = 0
     //bit [29] I or O (0 or 1)
     //bit [30] m or p (0 or 1)
+    //bit [31] = 0
+
+    //Pilt_BmI_D3_BLD2_PNL1_PLQ1_ROC1
+
+    //The id_ holds the following values for Pilot
+    //bit [0,1,2,3] the ROC #
+    //bit [4,5] the plaquet# -> always PLQ1 = 0 for Pilot (no plaquet for Pilot)
+    //bit [6] the panel# -> always 1 or 2 for Pilot
+    //bit [7,8,9,10,11] the blade# -> always 2 or 3 for Pilot
+    //bit [12,13] the disk# D3 -> always 3 for Pilot
+    //bit [28] = 1
+    //bit [29] I or O (0 or 1)
+    //bit [30] m or p (0 or 1) -> always 0 = m for Pilot
     //bit [31] = 0
 
     unsigned int id_;

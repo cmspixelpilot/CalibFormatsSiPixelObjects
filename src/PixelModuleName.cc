@@ -25,10 +25,10 @@ PixelModuleName::PixelModuleName(PixelROCName roc)
 {
 
   unsigned int id=roc.id();
-  unsigned int idtmp=(id&0x1FFFFFFF)>>4;
+  unsigned int idtmp=(id&0x0FFFFFFF)>>4;
   if ((id&0x80000000)==0) idtmp=(idtmp&0xFFFFFFFC);
-  
-  id_=idtmp|(id&0xE0000000);
+
+  id_=idtmp|(id&0xF0000000);
 
 }
 
@@ -39,6 +39,33 @@ PixelModuleName::PixelModuleName(string modulename)
     parsename(modulename);
 
 }
+
+void PixelModuleName::setIdPilot(char np, char LR,int disk,
+				 int blade, int panel){
+
+    std::string mthn = "[PixelModuleName::setIdPilot()]\t\t\t    " ;
+    id_=0x10000000;
+
+    //cout<< __LINE__ << "]\t" << mthn << "np    : " << np     <<endl; 
+    //cout<< __LINE__ << "]\t" << mthn << "LR    : " << LR     <<endl; 
+    //cout<< __LINE__ << "]\t" << mthn << "disk  : " << disk   <<endl; 
+    //cout<< __LINE__ << "]\t" << mthn << "blade  : " << blade   <<endl; 
+    //cout<< __LINE__ << "]\t" << mthn << "panel  : " << panel   <<endl; 
+
+    
+    if (np=='p') id_=(id_|0x40000000);
+    //cout<< __LINE__ << "]\t" << mthn <<"2 id_=" << hex << id_ << dec << endl;
+    if (LR=='I') id_=(id_|0x20000000);
+    //cout<< __LINE__ << "]\t" << mthn <<"3 id_=" << hex << id_ << dec << endl;
+    id_=(id_|(disk<<8));
+    //cout<< __LINE__ << "]\t" << mthn <<"4 id_=" << hex << id_ << dec << endl;
+    id_=(id_|(blade<<3));
+    //cout<< __LINE__ << "]\t" << mthn <<"5 id_=" << hex << id_ << dec << endl;
+    id_=(id_|((panel-1)<<2));
+    //cout<< __LINE__ << "]\t" << mthn <<"6 id_=" << hex << id_ << dec << endl;
+
+}
+
 
 void PixelModuleName::setIdFPix(char np, char LR,int disk,
 			 int blade, int panel){
@@ -120,7 +147,7 @@ void PixelModuleName::parsename(string name){
 
     //cout << "ROC name:"<<name<<endl;
 
-    check(name[0]=='F'||name[0]=='B',name);
+    check(name[0]=='F'||name[0]=='B'||name[0]=='P',name);
 
     if (name[0]=='F'){
 	check(name[0]=='F',name);
@@ -161,6 +188,51 @@ void PixelModuleName::parsename(string name){
 	int pnl=atoi(digit);
     
 	setIdFPix(np,LR,disk,bld,pnl);
+    }
+    else if (name[0]=='P'){
+	check(name[0]=='P',name);
+	check(name[1]=='i',name);
+	check(name[2]=='l',name);
+	check(name[3]=='t',name);
+	check(name[4]=='_',name);
+	check(name[5]=='B',name);
+	check(name[6]=='m',name); // only minus for pilot
+	char np=name[6];
+	check((name[7]=='I')||(name[7]=='O'),name);
+	char LR=name[7];
+	check(name[8]=='_',name);
+	check(name[9]=='D',name);
+	check(std::isdigit(name[10]),name);
+	char digit[2]={0,0};
+	digit[0]=name[10];
+	int disk=atoi(digit);
+	check(disk==3,name); // only disk 3 for pilot
+	check(name[11]=='_',name);
+	check(name[12]=='B',name);
+	check(name[13]=='L',name);
+	check(name[14]=='D',name);
+	check(isdigit(name[15]),name);
+	digit[0]=name[15];
+	int bld=atoi(digit);
+	//check(bld == 2 || bld == 3 || bld == 10 || bld == 11,name); // blades 2,3 for pilot BmI, blades 10,11 for pilot BmO
+	unsigned int offset=0;
+	if (isdigit(name[16])){
+	    digit[0]=name[16];
+  	    bld=10*bld+atoi(digit);
+	    offset++;
+	}
+	//check(offset==0,name); // no two digit blades for pilot
+	check(name[16+offset]=='_',name);
+	check(name[17+offset]=='P',name);
+	check(name[18+offset]=='N',name);
+	check(name[19+offset]=='L',name);
+	check(isdigit(name[20+offset]),name);
+	digit[0]=name[20+offset];
+	int pnl=atoi(digit);
+	check(pnl == 1 || pnl == 2,name); // only panels 1,2 for pilot
+	
+	//cout << "np = " << np << " LR = " << LR << " disk = " << disk << " bld = " << bld << " pnl = " << pnl << endl;
+	setIdPilot(np,LR,disk,bld,pnl);
     }
     else{
 	check(name[0]=='B',name);
@@ -233,6 +305,19 @@ string PixelModuleName::modulename() const{
 
     if (detsub()=='F') {
 	s1<<"FPix"; 
+	s1<<"_B";
+	s1<<mp();
+	s1<<IO();
+	s1<<"_D";
+	s1<<disk();
+	s1<<"_BLD";
+	s1<<blade();
+	s1<<"_PNL";
+	s1<<panel();
+
+    }
+    else if (detsub()=='P') {
+	s1<<"Pilt"; 
 	s1<<"_B";
 	s1<<mp();
 	s1<<IO();

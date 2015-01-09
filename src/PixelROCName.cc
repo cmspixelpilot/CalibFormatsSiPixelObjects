@@ -26,18 +26,56 @@ PixelROCName::PixelROCName(std::string rocname)
 
 }
 
+void PixelROCName::setIdPilot(char np, char LR,int disk,
+			      int blade, int panel, int plaquet, int roc){
+
+    std::string mthn = "[PixelROCName::setIdPilot()]\t\t\t\t    " ;
+    id_=0;
+
+    id_=0x10000000;
+
+    //std::cout << __LINE__ << "]\t" << mthn << "np    : " << np     << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "LR    : " << LR     << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "disk  : " << disk   << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "blade  : " << blade   << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "panel  : " << panel   << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "plaquet  : " << plaquet   << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "roc  : " << roc   << std::endl;
+
+    assert(roc>=0&&roc<16);
+
+    if (np=='p') id_=(id_|0x40000000);
+    //std::cout<< __LINE__ << "]\t" << mthn <<"2 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    if (LR=='I') id_=(id_|0x20000000);
+    //std::cout<< __LINE__ << "]\t" << mthn <<"3 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    id_=(id_|(disk<<12));
+    //std::cout<< __LINE__ << "]\t" << mthn <<"4 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    id_=(id_|(blade<<7));
+    //std::cout<< __LINE__ << "]\t" << mthn <<"5 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    id_=(id_|((panel-1)<<6));
+    //std::cout<< __LINE__ << "]\t" << mthn <<"6 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    id_=(id_|((plaquet-1)<<4));
+    //std::cout<< __LINE__ << "]\t" << mthn <<"7 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    id_=(id_|roc);
+
+    //std::cout<< __LINE__ << "]\t" << mthn <<"final id_="<<std::hex<<id_<<std::dec<<std::endl; 
+
+}
+
 void PixelROCName::setIdFPix(char np, char LR,int disk,
 			 int blade, int panel, int plaquet, int roc){
 
     std::string mthn = "[PixelROCName::setIdFPix()]\t\t\t\t    " ;
     id_=0;
 
-    //std::cout << __LINE__ << "]\t" << mthn << "subdet: " << subdet << std::endl; 
     //std::cout << __LINE__ << "]\t" << mthn << "np    : " << np     << std::endl;
     //std::cout << __LINE__ << "]\t" << mthn << "LR    : " << LR     << std::endl;
     //std::cout << __LINE__ << "]\t" << mthn << "disk  : " << disk   << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "blade  : " << blade   << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "panel  : " << panel   << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "plaquet  : " << plaquet   << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "roc  : " << roc   << std::endl;
 
-    
     assert(roc>=0&&roc<10);
 
     if (np=='p') id_=(id_|0x40000000);
@@ -122,7 +160,7 @@ void PixelROCName::parsename(std::string name){
     
   //    std::cout << "[PixelROCName::parsename()]\t\tROC name:"<<name<<std::endl;
 
-    check(name[0]=='F'||name[0]=='B',name);
+    check(name[0]=='F'||name[0]=='B'||name[0]=='P',name);
 
     if (name[0]=='F'){
 	check(name[0]=='F',name);
@@ -180,6 +218,71 @@ void PixelROCName::parsename(std::string name){
 	}
     
 	setIdFPix(np,LR,disk,bld,pnl,plq,roc);
+    }
+    else if (name[0]=='P'){
+        //01234567890123456789012345678901
+        //Pilt_BmI_D3_BLD2_PNL1_PLQ1_ROC10
+	check(name[0]=='P',name);
+	check(name[1]=='i',name);
+	check(name[2]=='l',name);
+	check(name[3]=='t',name);
+	check(name[4]=='_',name);
+	check(name[5]=='B',name);
+	check(name[6]=='m',name); // only minus for pilot
+	char np=name[6];
+	check((name[7]=='I')||(name[7]=='O'),name);
+	char LR=name[7];
+	check(name[8]=='_',name);
+	check(name[9]=='D',name);
+	check(std::isdigit(name[10]),name);
+	char digit[2]={0,0};
+	digit[0]=name[10];
+	int disk=atoi(digit);
+	check(disk==3,name); // only disk 3 for pilot
+	check(name[11]=='_',name);
+	check(name[12]=='B',name);
+	check(name[13]=='L',name);
+	check(name[14]=='D',name);
+	check(std::isdigit(name[15]),name);
+	digit[0]=name[15];
+	int bld=atoi(digit);
+	//check((bld == 2) || (bld == 3) || (bld == 10) || (bld == 11),name); // blades 2,3 for pilot BmI and blades 10,11 for pilot BmO
+	unsigned int offset=0;
+	if (std::isdigit(name[16])){
+	  digit[0]=name[16];
+	  bld=10*bld+atoi(digit);
+	  offset++;
+	}
+	//check(offset==0,name); // no two digit blades for pilot
+	check(name[16+offset]=='_',name);
+	check(name[17+offset]=='P',name);
+	check(name[18+offset]=='N',name);
+	check(name[19+offset]=='L',name);
+	check(std::isdigit(name[20+offset]),name);
+	digit[0]=name[20+offset];
+	int pnl=atoi(digit);
+	check(pnl == 1 || pnl == 2,name); // only panels 1,2 for pilot
+	check(name[21+offset]=='_',name);
+	check(name[22+offset]=='P',name);
+	check(name[23+offset]=='L',name);
+	check(name[24+offset]=='Q',name);
+	check(std::isdigit(name[25+offset]),name);
+	digit[0]=name[25+offset];
+	int plq=atoi(digit);
+	check(plq==1,name);
+	check(name[26+offset]=='_',name);
+	check(name[27+offset]=='R',name);
+	check(name[28+offset]=='O',name);
+	check(name[29+offset]=='C',name);
+	check(std::isdigit(name[30+offset]),name);
+	digit[0]=name[30+offset];
+	int roc=atoi(digit);
+	if (name.size()==32+offset){
+	    digit[0]=name[31+offset];
+	    roc=roc*10+atoi(digit);
+	}
+	
+	setIdPilot(np,LR,disk,bld,pnl,plq,roc);
     }
     else{
 	check(name[0]=='B',name);
@@ -239,7 +342,7 @@ void PixelROCName::parsename(std::string name){
 	    digit[0]=name[34+offset];
 	    roc=roc*10+atoi(digit);
 	}
-    
+	
 	setIdBPix(np,LR,sec,layer,ladder,HF,module,roc);
     }
 
@@ -262,8 +365,8 @@ std::string PixelROCName::rocname() const{
 
     std::ostringstream s1;
 
-    if (detsub()=='F') {
-	s1<<"FPix"; 
+    if (detsub()=='F' || detsub()=='P') {
+        s1<<(detsub() == 'F'?"FPix":"Pilt"); 
 	s1<<"_B";
 	s1<<mp();
 	s1<<IO();
@@ -278,7 +381,7 @@ std::string PixelROCName::rocname() const{
 	s1<<"_ROC";
 	s1<<roc();
 
-	assert(roc()>=0&&roc()<=10);
+	assert(roc()>=0&&roc()<=(detsub()=='F'?10:15));
     }
     else{
 	s1<<"BPix"; 

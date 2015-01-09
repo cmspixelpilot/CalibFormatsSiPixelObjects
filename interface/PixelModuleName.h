@@ -38,11 +38,11 @@ namespace pos{
     
     std::string modulename() const; 
 
-    char detsub() const {return (id_&0x80000000)?'B':'F';}    
+    char detsub() const {return (id_&0x10000000)?'P':((id_&0x80000000)?'B':'F');}    
     char mp() const {return id_&0x40000000?'p':'m';}    
     char IO() const {return id_&0x20000000?'I':'O';}    
 
-    //These methods only for FPix
+    //These methods only for FPix and Pilot
     int disk() const {assert((id_&0x80000000)==0); return (id_>>8)&0x3;}    
     int blade() const {assert((id_&0x80000000)==0); return (id_>>3)&0x1f;}    
     int panel() const {assert((id_&0x80000000)==0); return ((id_>>2)&0x1)+1;} 
@@ -73,6 +73,9 @@ namespace pos{
 
     void parsename(std::string name);
 
+    void setIdPilot(char np, char LR,int disk,
+		    int blade, int panel);
+
     void setIdFPix(char np, char LR,int disk,
 		   int blade, int panel);
 
@@ -85,13 +88,13 @@ namespace pos{
 
     //BPix_BpI_SEC1_LYR1_LDR3F_MOD1
 
-
     //The id_ holds the following values for BPi
     //bit [0,1] the module#
     //bit [2,3,4,5,6] the ladder#
     //bit [7] H or F (0 or 1)#
     //bit [8,9] the layer#
     //bit [10,11,12] the section#
+    //bit [28] = 0
     //bit [29] I or 0 (0 or 1)
     //bit [30] m or p (0 or 1)
     //bit [31] = 1
@@ -100,11 +103,25 @@ namespace pos{
     //FPix_BpI_D1_BLD1_PNL1
 
     //The id_ holds the following values for FPix
-    //bit [0] the panel#
-    //bit [1,2,3,4,5] the blade#
-    //bit [6,7] the disk#
+    //JMT 20140828 these were wrong at least with respect to the actual code... fixed
+    //bit [2] the panel#
+    //bit [3,4,5,6,7] the blade#
+    //bit [8,9] the disk#
+    //bit [28] = 0
     //bit [29] I or O (0 or 1)
     //bit [30] m or p (0 or 1)
+    //bit [31] = 0
+
+
+    //Pilt_BmI_D3_BLD2_PNL1
+
+    //The id_ holds the following values for Pilot
+    //bit [0] the panel# -> always 1 or 2 for Pilot
+    //bit [1,2,3,4,5] the blade# -> always 2 or 3 for Pilot
+    //bit [6,7] the disk# -> always 3 for Pilot
+    //bit [28] = 1
+    //bit [29] I or O (0 or 1)
+    //bit [30] m or p (0 or 1) -> always 0 = m for Pilot
     //bit [31] = 0
 
     unsigned int id_;
