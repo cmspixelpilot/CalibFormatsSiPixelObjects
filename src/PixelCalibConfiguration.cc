@@ -965,22 +965,30 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
       string tbmChannel = channel.TBMChannelString();
       //cout<<" tbm channel "<<tbmChannel<<endl; 
       rocInfo.tbmChannel_ = tbmChannel;
+      assert(tbmChannel == "A" || tbmChannel == "B");
+      rocInfo.tbmChannelNum_ = tbmChannel == "A" ? 14 : 15;
+#else
+#error hahaha
 #endif
 
-      std::map<std::string, unsigned int> defaultDACValues;
+      typedef std::map<std::string, unsigned int> defaultDACMap;
+      defaultDACMap defaultDACValues, defaultTBMDACValues;
       (*dacs)[PixelModuleName(rocs_[i].rocname())]->getDACSettings(rocs_[i])->getDACs(defaultDACValues);
+      (*tbms)[PixelModuleName(rocs_[i].rocname())]->getDACs(tbmChannel, defaultTBMDACValues);
 
       for ( std::vector<PixelDACScanRange>::const_iterator dacs_itr = dacs_.begin(); dacs_itr != dacs_.end(); dacs_itr++ )
       {
-        std::map<std::string, unsigned int>::const_iterator foundThisDAC = defaultDACValues.find(dacs_itr->name());
-        assert( foundThisDAC != defaultDACValues.end() );
-
+	defaultDACMap& defMap = dacs_itr->isTBM() ? defaultTBMDACValues : defaultDACValues;
+	defaultDACMap::const_iterator foundThisDAC = defMap.find(dacs_itr->name());
+	assert( foundThisDAC != defMap.end() );
+	  
 	pair<unsigned int, unsigned int> 
 	  dacchannelAndValue(dacs_itr->dacchannel(),
 			     foundThisDAC->second);
-
+	  
 	rocInfo.defaultDACs_.push_back(dacchannelAndValue);
       }
+
       rocInfo_.push_back(rocInfo);
     }
   }
@@ -1069,7 +1077,18 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 	  }
 	}
 
-        pixelFECs[theROC.fecnumber()]->progdac(theROC.mfec(),
+	if (dacs_[j].isTBM()) {
+	  pixelFECs[theROC.fecnumber()]->tbmcmd(theROC.mfec(),
+						theROC.mfecchannel(),
+						rocInfo_[i].tbmChannelNum_,
+						theROC.hubaddress(),
+						4,
+						rocInfo_[i].defaultDACs_[j].first,
+						rocInfo_[i].defaultDACs_[j].second,
+						0);
+	}
+	else {
+	  pixelFECs[theROC.fecnumber()]->progdac(theROC.mfec(),
 					       theROC.mfecchannel(),
 					       theROC.hubaddress(),
 					       theROC.portaddress(),
@@ -1077,6 +1096,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 					       rocInfo_[i].defaultDACs_[j].first,
 					       rocInfo_[i].defaultDACs_[j].second,
 					       _bufferData);	
+	}
 
 	if (dacs_[j].dacchannel()==k_DACAddress_WBC) {
 	  changedWBC=true;
@@ -1136,13 +1156,25 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 	//     << " dac="<<dacs_[ii].name()<<" new value="<<dacvalue<<endl;
       }
 
-      pixelFECs[theROC.fecnumber()]->progdac(theROC.mfec(),
+      if (dacs_[ii].isTBM()) {
+	pixelFECs[theROC.fecnumber()]->tbmcmd(theROC.mfec(),
+					      theROC.mfecchannel(),
+					      rocInfo_[i].tbmChannelNum_,
+					      theROC.hubaddress(),
+					      4,
+					      rocInfo_[i].defaultDACs_[i].first,
+					      dacvalue,
+					      0);
+      }
+      else {
+	pixelFECs[theROC.fecnumber()]->progdac(theROC.mfec(),
 					     theROC.mfecchannel(),
 					     theROC.hubaddress(),
 					     theROC.portaddress(),
 					     theROC.rocid(),
 					     rocInfo_[i].defaultDACs_[ii].first,
 					     dacvalue,_bufferData);
+      }
 
       if (dacs_[ii].dacchannel()==k_DACAddress_WBC) {
 	changedWBC=true;
@@ -1751,4 +1783,3 @@ void PixelCalibConfiguration::writeXMLTrailer(std::ofstream *outstream,
   std::cout << __LINE__ << "]\t" << mthn << "Data written "   						  << std::endl ;
 
 }
-

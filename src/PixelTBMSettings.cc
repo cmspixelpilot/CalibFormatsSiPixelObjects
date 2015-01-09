@@ -6,6 +6,7 @@
 //
 //
 
+#include "CalibFormats/SiPixelObjects/interface/PixelDACNames.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTBMSettings.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <fstream>
@@ -406,4 +407,19 @@ void PixelTBMSettings::writeXMLTrailer(std::ofstream *outstream,
   *outstream << "</ROOT> "								              	     << std::endl ;
 
   outstream->close() ;
+}
+
+void PixelTBMSettings::getDACs(const std::string& channel, std::map<std::string, unsigned int>& dacs) const {
+  dacs.clear();
+  
+  if (channel == "A")
+    dacs[k_DACName_TBMDelay] = TBMADelay_;
+  else if (channel == "B")
+    dacs[k_DACName_TBMDelay] = TBMBDelay_;
+  else {
+    std::cout << __LINE__ << "]\t[PixelTBMSettings::getDACs()]\t\tFATAL: bad channel: " << channel << std::endl ; 
+    assert(0);
+  }
+
+  dacs[k_DACName_TBMPLL] = TBMPLLDelay_;
 }

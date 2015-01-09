@@ -67,6 +67,11 @@ namespace pos{
     unsigned char getTBMBDelay() {return TBMBDelay_;}
     void setTBMBDelay(unsigned char x) {TBMBDelay_=x;}
     
+    unsigned char getTBMPLLDelay() {return TBMPLLDelay_;}
+    void setTBMPLLDelay(unsigned char x) {TBMPLLDelay_=x;}
+
+    void getDACs(const std::string& channel, std::map<std::string, unsigned int>& dacs) const;
+    
     // Added by Dario (Apr 2008)
     void setROCName(std::string rocname){
       	PixelROCName tmp(rocname);
