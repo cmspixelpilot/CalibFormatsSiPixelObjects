@@ -27,6 +27,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCTrimBits.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDACSettings.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelTBMSettings.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDACScanRange.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h"
@@ -82,6 +83,7 @@ namespace pos{
 		      std::map<pos::PixelModuleName,pos::PixelMaskBase*>* masks,
 		      std::map<pos::PixelModuleName,pos::PixelTrimBase*>* trims,
 		      std::map<pos::PixelModuleName,pos::PixelDACSettings*>* dacss,
+		      std::map<pos::PixelModuleName,pos::PixelTBMSettings*>* tbms,
 		      unsigned int state) const; 
 
     //return vector of fed# and channels controlled by this fed supervisor

@@ -913,7 +913,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 					   std::map<pos::PixelModuleName,pos::PixelMaskBase*>* masks,
 					   std::map<pos::PixelModuleName,pos::PixelTrimBase*>* trims,
 					   std::map<pos::PixelModuleName,pos::PixelDACSettings*>* dacs,
-
+					   std::map<pos::PixelModuleName,pos::PixelTBMSettings*>* tbms,
 					   unsigned int state) const {
 
   std::string mthn = "[PixelCalibConfiguration::nextFECState()]\t\t    " ;
