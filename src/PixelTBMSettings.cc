@@ -20,6 +20,8 @@ using namespace pos;
 
 
 PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &tableMat):PixelConfigBase("","",""){
+  assert(0);
+
   std::string mthn = "]\t[PixelTBMSettings::PixelTBMSettings()]\t\t\t    " ;
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
@@ -85,11 +87,13 @@ PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &ta
       PixelROCName tmp(tableMat[1][colM["MODULE_NAME"]]);
       rocid_ = tmp ;
       //std::cout << __LINE__ << mthn << "Built ROCNAME: " << rocid_.rocname()<< std::endl ;
-      
+
+#if 0      
       analogInputBias_  = atoi(tableMat[1][colM["ANLG_INBIAS_VAL"]].c_str());
       analogOutputBias_ = atoi(tableMat[1][colM["ANLG_OUTBIAS_VAL"]].c_str());
       analogOutputGain_ = atoi(tableMat[1][colM["ANLG_OUTGAIN_VAL"]].c_str());
-      
+     #endif
+ 
       if( tableMat[1][colM["TBM_MODE"]] == "SingleMode"){
 	singlemode_=true;
       }
@@ -127,21 +131,15 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 
 	in >> tag;
 	//std::cout << "Tag="<<tag<<std::endl;
-	assert(tag=="AnalogInputBias:");
+	assert(tag=="TBMADelay:");
 	in >> tmpint;
-	analogInputBias_=tmpint;
+	TBMADelay_=tmpint;
 
 	in >> tag;
 	//std::cout << "Tag="<<tag<<std::endl;
-	assert(tag=="AnalogOutputBias:");
+	assert(tag=="TBMBDelay:");
 	in >> tmpint;
-	analogOutputBias_=tmpint;
-
-	in >> tag;
-	//std::cout << "Tag="<<tag<<std::endl;
-	assert(tag=="AnalogOutputGain:");
-	in >> tmpint;
-	analogOutputGain_=tmpint;
+	TBMBDelay_=tmpint;
 
 	in >> tag;
 	//std::cout << "Tag="<<tag<<std::endl;
@@ -186,9 +184,8 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 
 	rocid_=tmp;
 
-	in >> analogInputBias_;
-	in >> analogOutputBias_;
-	in >> analogOutputGain_;
+	in >> TBMADelay_;
+	in >> TBMBDelay_;
 	in >> singlemode_;
 
 	in.close();
@@ -202,9 +199,8 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 
 void PixelTBMSettings::setTBMGenericValue(std::string what, int value) 
 {
- if(      what == "analogInputBias" )  {analogInputBias_  = (unsigned char)value;}
- else if( what == "analogOutputBias" ) {analogOutputBias_ = (unsigned char)value;}
- else if( what == "analogOutputGain" ) {analogOutputGain_ = (unsigned char)value;}
+ if(      what == "TBMADelay" ) {TBMADelay_ = (unsigned char)value;}
+ else if( what == "TBMBDelay" ) {TBMBDelay_ = (unsigned char)value;}
  else if( what == "Mode" )             {singlemode_       = (bool)value;         }
  else 
  {
@@ -220,9 +216,8 @@ void PixelTBMSettings::writeBinary(std::string filename) const {
     out << (char)rocid_.rocname().size();
     out.write(rocid_.rocname().c_str(),rocid_.rocname().size());
 
-    out <<analogInputBias_;
-    out <<analogOutputBias_;
-    out <<analogOutputGain_;
+    out <<TBMADelay_;
+    out <<TBMBDelay_;
     out << singlemode_;
 
 
@@ -239,9 +234,8 @@ void PixelTBMSettings::writeASCII(std::string dir) const {
 
     out << rocid_.rocname() << std::endl;
 
-    out << "AnalogInputBias: "<<(int)analogInputBias_<<std::endl;
-    out << "AnalogOutputBias: "<<(int)analogOutputBias_<<std::endl;
-    out << "AnalogOutputGain: "<<(int)analogOutputGain_<<std::endl;
+    out << "TBMADelay: "<<(int)TBMADelay_<<std::endl;
+    out << "TBMBDelay: "<<(int)TBMBDelay_<<std::endl;
     out << "Mode: ";
     if (singlemode_) {
       out << "SingleMode" << std::endl;
@@ -286,19 +280,12 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     //} else {
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0xc0, 0);
     //}
-    //Enable token and analog output
+    //Enable token and  output
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 4, 0x0, 0);
 
-    //Analog input bias
-    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 5, 
-		     analogInputBias_, 0);
-    //Analog output bias
-    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 6, 
-		     analogOutputBias_, 0);
-    //Analog output gain
-    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 7, 
-		     analogOutputGain_, 0);
-
+    // Set delays on both cores
+    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel,  hubaddress, 4, 5, TBMADelay_, 0);
+    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 5, TBMBDelay_, 0);
 
     //setting speed to 40MHz
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 0, 1, 0);
@@ -306,7 +293,7 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 1, 0xc0, 0);
     //Reset TBM and reset ROC
     if (doResets)    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 2, 0x14, 0);
-    //Enable token and analog output
+    //Enable token and  output
     if (singlemode_){
       pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 4, 0x3, 0);
     }
@@ -319,9 +306,8 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 std::ostream& pos::operator<<(std::ostream& s, const PixelTBMSettings& tbm){
 
     s << "Module          :"<<tbm.rocid_.rocname() <<std::endl; 
-    s << "analogInputBias :"<<tbm.analogInputBias_<<std::endl;
-    s << "analogOutputBias:"<<tbm.analogOutputBias_<<std::endl;
-    s << "analogOutputGain:"<<tbm.analogOutputGain_<<std::endl;
+    s << "TBMADelay       :"<<tbm.TBMADelay_<<std::endl;
+    s << "TBMBDelay       :"<<tbm.TBMBDelay_<<std::endl;
     if (tbm.singlemode_){
       s << "mode            :Singlemode"<<std::endl;
     }
@@ -378,15 +364,18 @@ void PixelTBMSettings::writeXML(std::ofstream *outstream,
                                 std::ofstream *out1stream,
                                 std::ofstream *out2stream) const 
 {
+  assert(0);
   std::string mthn = "]\t[PixelTBMSettings::writeXML()]\t\t\t    " ;
 
   PixelModuleName module(rocid_.rocname());
   													     
   *outstream << "  <DATA>"										     << std::endl ;
   *outstream << "   <MODULE_NAME>"	<< rocid_.rocname()	 << "</MODULE_NAME>"			     << std::endl ;
+#if 0
   *outstream << "   <ANLG_INBIAS_VAL>"  <<(int)analogInputBias_  << "</ANLG_INBIAS_VAL>"		     << std::endl ;
   *outstream << "   <ANLG_OUTBIAS_VAL>" <<(int)analogOutputBias_ << "</ANLG_OUTBIAS_VAL>"		     << std::endl ;
   *outstream << "   <ANLG_OUTGAIN_VAL>" <<(int)analogOutputGain_ << "</ANLG_OUTGAIN_VAL>"		     << std::endl ;
+#endif
   if (singlemode_) {											     	
     *outstream << "  <TBM_MODE>SingleMode</TBM_MODE>" 					 		     << std::endl ;
   }

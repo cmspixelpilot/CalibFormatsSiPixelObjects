@@ -61,14 +61,11 @@ namespace pos{
 
     friend std::ostream& operator<<(std::ostream& s, const PixelTBMSettings& mask);
 
-    unsigned char getAnalogInputBias() {return analogInputBias_;}
-    void setAnalogInputBias(unsigned char analogInputBias) {analogInputBias_=analogInputBias;}
+    unsigned char getTBMADelay() {return TBMADelay_;}
+    void setTBMADelay(unsigned char x) {TBMADelay_=x;}
     
-    unsigned char getAnalogOutputBias() {return analogOutputBias_;}
-    void setAnalogOutputBias(unsigned char analogOutputBias) {analogOutputBias_=analogOutputBias;}
-    
-    unsigned char getAnalogOutputGain() {return analogOutputGain_;}
-    void setAnalogOutputGain(unsigned char analogOutputGain) {analogOutputGain_=analogOutputGain;}
+    unsigned char getTBMBDelay() {return TBMBDelay_;}
+    void setTBMBDelay(unsigned char x) {TBMBDelay_=x;}
     
     // Added by Dario (Apr 2008)
     bool getMode(void)      {return singlemode_;}
@@ -84,9 +81,8 @@ namespace pos{
     PixelROCName rocid_;
     PixelModuleName moduleId_ ;
 
-    unsigned char analogInputBias_;
-    unsigned char analogOutputBias_;
-    unsigned char analogOutputGain_;
+    unsigned char TBMADelay_;
+    unsigned char TBMBDelay_;
     bool singlemode_;
 
   };
