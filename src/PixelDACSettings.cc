@@ -167,9 +167,9 @@ void PixelDACSettings::addROC(PixelROCDACSettings &rocname)
 
 PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tableMat): PixelConfigBase("","","")
 {
+  assert(0);
 
-
-
+#if 0
 /*
  EXTENSION_TABLE_NAME: ROC_DAC_SETTINGS_COL (VIEW: CONF_KEY_ROCDAC_COL_V)
  
@@ -371,6 +371,8 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
 //     }   
   //  std::cout<<"Number of ROCs in the PixelDACSettings::PixelDACSettings(vector <vector<string> >):"<<dacsettings_.size()<<std::endl; 
   //  std::cout << "[PixelDACSettings::PixelDACSettings(std::vector)] before end of constructor" << std::endl ;
+#endif
+
 }//end PDSMatrix constructor
 //end added by Umesh
 
@@ -572,7 +574,7 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 // 		      controlreg,
 // 		      bufferData);
 
-    if (!HVon || disableRoc)    dacs[11]=0; //set Vcthr DAC to 0 (Vcthr is DAC 12=11+1)
+    if (!HVon || disableRoc)    dacs[11]=0; //set Vcthr DAC to 0 (Vcthr is DAC 12=11+1) // JMTBAD hardcoded
     //    std::cout<<" ; setting VcThr to "<<dacs[11]<<std::endl; //for debugging
     pixelFEC->setAllDAC(theROC,dacs,bufferData);
 
